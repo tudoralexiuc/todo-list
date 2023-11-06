@@ -1,12 +1,14 @@
 import React, { useState, createContext } from 'react';
 import Button from '@mui/material/Button';
 import '@fontsource/roboto/700.css';
-import { TextField, Typography } from '@mui/material';
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import { Checkbox, TextField, Typography } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import { Link } from 'react-router-dom';
 
 const initialGlobalState = {
   // count: 0,
-  todo2: [],
+  items: [],
 };
 
 // Create a Context for the (global) State
@@ -58,8 +60,10 @@ const useGlobalState = () => React.useContext(GlobalState);
 // Create an example component which both renders and modifies the GlobalState
 function SomeComponent() {
   // const { count } = useGlobalState();
-  const { todo2 } = useGlobalState();
+  const { items } = useGlobalState();
   const [newTodo, setNewTodo] = useState('');
+  const [editing, setEditing] = useState(false);
+  const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
   // create array that holds new items
   // const [todo, setTodo] = useState([]);
@@ -71,16 +75,19 @@ function SomeComponent() {
   //   });
   // }
 
+  // add item
   function addItem() {
     if (!newTodo) {
       return;
     }
+    setEditing(false);
 
     const item = {
       value: newTodo,
+      completed: false,
     };
     GlobalState.set({
-      todo2: [...todo2, item],
+      items: [...items, item],
     });
 
     // setTodo((oldTodo) => [...oldTodo, item]);
@@ -88,57 +95,139 @@ function SomeComponent() {
     setNewTodo('');
   }
 
+  // delete item
   function deleteItem(id) {
-    console.log(todo2);
-    const newArray = todo2.splice(id, 1);
+    console.log(items);
+    const newArray = items.filter((item) => items.indexOf(item) !== id);
     GlobalState.set({
-      todo2: newArray,
+      items: newArray,
+    });
+  }
+
+  // edit item
+  function handleEdit(id) {
+    setEditing(true);
+    const filteredItems = items.filter((item) => items.indexOf(item) !== id);
+    const selectedItem = items.find((item) => items.indexOf(item) === id);
+    // const selectedItem = items.find((item) => items.indexOf(item) === id);
+    GlobalState.set({
+      items: filteredItems,
+    });
+    setNewTodo(selectedItem.value);
+  }
+
+  function handleCheck(id) {
+    GlobalState.set({
+      items: items.map((item) => {
+        if (items.indexOf(item) !== id) {
+          return item;
+        } else {
+          return {
+            ...item,
+            completed: !item.completed,
+          };
+        }
+      }),
     });
   }
 
   return (
-    <div className="wrapper">
-      <div></div>
-      <div className="">
-        {/* <div onClick={incrementCount}>{count}</div> */}
-        <Typography variant="h2" className="todo-title">
-          todo list
-        </Typography>
-        <div className="todo-add-items">
-          <TextField
-            id="outlined-basic"
-            label=""
-            variant="outlined"
-            type="text"
-            placeholder="Add an item..."
-            value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
-          />
-          <Button variant="contained" onClick={() => addItem()}>
-            add
+    <div>
+      <div className="pages">
+        <Link to="/">
+          <Button variant="contained" className="page-button">
+            <Typography className="page-font">todo list</Typography>
           </Button>
-        </div>
-        <ul>
-          {todo2.map((item, index) => {
-            return (
-              <Typography className="todo-text">
-                <li key={index}>
-                  {item.value}
-                  <Button
-                    variant="outlined"
-                    startIcon={<DeleteOutlinedIcon />}
-                    onClick={() => deleteItem(index)}
-                    size="small"
-                  >
-                    delete
-                  </Button>
-                </li>
-              </Typography>
-            );
-          })}
-        </ul>
+        </Link>
+        <Link to="/newpage1">
+          <Button variant="contained" className="page-button">
+            <Typography className="page-font">new page 1</Typography>
+          </Button>
+        </Link>
+        <Link to="/newpage2">
+          <Button variant="contained" className="page-button">
+            <Typography className="page-font">new page 2</Typography>
+          </Button>
+        </Link>
+        <Link to="/newpage3">
+          <Button variant="contained" className="page-button">
+            <Typography className="page-font">new page 3</Typography>
+          </Button>
+        </Link>
       </div>
-      <div></div>
+      <div className="wrapper">
+        <div></div>
+        <div className="">
+          {/* <div onClick={incrementCount}>{count}</div> */}
+          <Typography variant="h2" className="todo-title">
+            todo list
+          </Typography>
+          <div className="todo-add-items">
+            <TextField
+              id="outlined-basic"
+              label=""
+              variant="outlined"
+              type="text"
+              placeholder="Add an item..."
+              value={newTodo}
+              onChange={(e) => setNewTodo(e.target.value)}
+            />
+            <Button variant="contained" onClick={() => addItem()}>
+              {editing ? 'update' : 'add'}
+            </Button>
+          </div>
+          <ul>
+            {items.map((item, index) => {
+              return (
+                <Typography key={index} className="todo-text">
+                  <li>
+                    <div className="todo-tasks">
+                      <Checkbox
+                        checked={item.completed}
+                        onChange={() => handleCheck(index)}
+                        {...label}
+                      />
+                      <span
+                        style={
+                          item.completed
+                            ? { textDecoration: 'line-through' }
+                            : {}
+                        }
+                      >
+                        {item.value}
+                      </span>
+                    </div>
+                    <div className="interactButtons">
+                      <Button
+                        variant="contained"
+                        className="editButton"
+                        disabled={editing}
+                        color="primary"
+                        startIcon={<EditIcon />}
+                        onClick={() => handleEdit(index)}
+                        size="small"
+                      >
+                        edit
+                      </Button>
+                      <Button
+                        variant="contained"
+                        className="deleteButton"
+                        disabled={editing}
+                        startIcon={<DeleteIcon />}
+                        onClick={() => deleteItem(index)}
+                        size="small"
+                      >
+                        delete
+                      </Button>
+                    </div>
+                  </li>
+                </Typography>
+              );
+            })}
+          </ul>
+        </div>
+        <div></div>
+      </div>
     </div>
   );
 }

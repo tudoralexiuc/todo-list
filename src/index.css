@@ -20,26 +20,58 @@ body {
 .todo-add-items {
   display: flex;
   justify-content: space-between;
-  width: 300px;
+  width: 350px;
   color: white;
+}
+
+.todo-tasks {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 ul {
   list-style-type: none;
   margin: 0;
-  padding-top: 20px;
   overflow: hidden;
   padding-left: 0;
 }
 
 li {
   display: flex;
-  padding: 5px;
+  padding: 5px 5px 0 0;
   justify-content: space-between;
+  background-color: #ffffff;
+  border-radius: 0.3rem;
   align-items: center;
   color: black;
+  font-size: 0.8rem;
 }
 
+ul .editButton,
+ul .deleteButton,
 .todo-text {
-  font-size: 0.5rem;
+  margin-right: 0.5rem;
+  font-size: 0.7rem;
+}
+
+.pages {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  width: 100px;
+  height: 100vh;
+}
+
+.page-button {
+  transform: rotate(90deg);
+  outline: 1px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pages .page-font {
+  font-size: 0.7rem;
 }
